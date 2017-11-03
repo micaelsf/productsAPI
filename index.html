@@ -1,0 +1,75 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>RESTful web service - Products App</title>
+    <meta charset="utf-8" />
+</head>
+<body>
+    <div>
+        <h2>All Products</h2>
+        <ul id="products" />
+    </div>
+    <div>
+        <h2>Search by Id</h2>
+        <input type="text" id="prodId" size="5" />
+        <input type="button" value="Search" onclick="findById();" />
+        <h2>Search by Category</h2>
+        <input type="text" id="prodCat" />
+        <input type="button" value="Search" onclick="findByCategory();" />
+        <p id="product" />
+    </div>
+
+    <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.1.4.min.js"></script>
+    <script>
+        var uri = 'http://localhost:52862/api/products';
+        $( function () {
+            $.get(uri)
+                .done(function (data) {
+                    //ON SUCESS, 'data' contains a list of products
+                    $.each(data, function (key, item) {
+                        console.log(data);
+                        //ADD a list item for the product
+                        $('<li>', { text: formatItem(item) }).appendTo($('#products'));
+                    });
+                })
+                .fail(function (jqxhr, textStatus, error) {
+                    var err = textStatus + ", " + error;
+                    alert("Request failed: " + err);
+                });
+        });
+
+        function formatItem(item) {
+            return item.Name + ": " + item.Price + "€";
+        }
+
+        function findById() {
+            var id = $('#prodId').val();
+            $('#product li').remove();
+            $.get(uri + '/' + id)
+                .done(function (data) {
+                    console.log(data);
+                    $('#product').text(formatItem(data));
+                })
+                .fail(function (jqxhr, textStatus, error) {
+                    var err = textStatus + ", " + error;
+                    alert("request failed! : ", err);
+                });
+        }
+
+        function findByCategory() {
+            var category = $('#prodCat').val();
+            $('#product li').remove();
+            $.get(uri + '/' + category)
+                .done(function (data) {
+                    $.each(data, function (key, item) {
+                        $('<li>', { text: formatItem(item) }).appendTo($('#product'));
+                    });
+                })
+                .fail(function (jqxhr, textStatus, error) {
+                    var err = textStatus + ", " + error;
+                    alert("request failed! : ", err);
+                });
+        }
+    </script>
+</body>
+</html>
